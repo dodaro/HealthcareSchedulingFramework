@@ -1,0 +1,24 @@
+Note: we tested on macOS with python3.
+
+LLM-only.
+
+Step 1 - Build the instance folder. Create a folder, e.g. ~/Desktop/ORS, containing: 
+    - ORS_requirements.txt.
+    - generated instances (generated-day1-input1.nl, generated-day2-input1.nl, generated-day5-input1.nl).
+Step 2 - Open a session on that folder. Launch Claude Code (desktop app, Code tab) with the folder as its working directory.
+Step 3 - Anchor the specification first. Prompt: <<In the folder you will find a .txt file with the requirements. Please read it and stop after it.>>
+Step 4 - Ask for one instance at a time. Prompt: <<Now solve the first instance (number 1).>>
+Repeat Step 4 for day2-input1 and day5-input1.
+
+LLM + framework.
+
+Step 1 - Build the instance folder. Create a folder, e.g. ~/Desktop/ORS, containing: 
+    - ORS_requirements.txt.
+    - generated instances (generated-day1-input1.nl, generated-day2-input1.nl, generated-day5-input1.nl).
+    - framework.lp.
+    - input_converter.lp.
+Step 2 - Install clingo and make sure it is on the PATH (this session used clingo 5.7.1 from MacPorts).
+Step 2 - Open a session on that folder. Launch Claude Code (desktop app, Code tab) with the folder as its working directory.
+Step 3 - Anchor the specification first. Prompt: <<In the folder you will find a .txt file with the requirements, a file framework.lp with an ASP encoding and a file input_converter.lp. The file framework.lp is a general ASP encoding and should not be modified. The file input_converter.lp can be used as a guideline on the things you can use to model the problem written in requirements.txt. Please take a look at the files and stop after that.>>
+Step 4 - Ask for one instance at a time. Prompt: <<Now solve the first instance (number 1), which represents an instance in natural language. You can encode it in the format needed to use the framework. After this you can use clingo to prove the optimality, if clingo fails to do so, you can do it "by hand".>>
+Repeat Step 4 for day2-input1 and day5-input1.
