@@ -1,0 +1,238 @@
+OPERATING ROOM SCHEDULING - PROBLEM SPECIFICATION
+=================================================
+
+This document specifies a surgical scheduling problem completely. Together with
+an instance, it contains everything needed to determine whether a proposed
+schedule is valid and how good it is. Read it in full before producing a
+schedule.
+
+
+1. THE PROBLEM
+--------------
+
+A hospital operating department must plan a set of surgical requests over a
+planning horizon of one or more days.
+
+Scheduling a request means deciding, all at once, the day, the shift, the
+starting time slot, the operating room, the surgeon and the anaesthetist. A
+request is either scheduled completely, with all six decisions taken, or not
+scheduled at all. Partial assignments are not allowed.
+
+Not every request has to be scheduled. Requests that cannot be accommodated are
+left out. The goal is to leave out as few as possible, giving precedence to the
+more urgent ones.
+
+
+2. CONVENTIONS
+--------------
+
+Days
+  The planning horizon consists of consecutive days, numbered 1, 2, 3, and so on.
+
+Shifts
+  Each day is divided into two shifts: a morning shift and an afternoon shift.
+  A surgery belongs to exactly one shift of exactly one day. A shift is always
+  identified by naming its day and saying whether it is the morning or the
+  afternoon one.
+
+Time slots
+  Each shift is divided into time slots of equal length. All shifts have the
+  same number of slots. Slots within a shift are numbered consecutively, and the
+  instance states the number of the first slot and the number of slots per
+  shift. Slot numbers restart in every shift: slot 3 of the morning shift of day
+  1 and slot 3 of the afternoon shift of day 1 are different moments in time.
+
+Durations
+  The duration of a surgery is a whole number of time slots.
+
+Occupancy
+  A surgery that starts at slot s and lasts d slots occupies the slots
+  s, s+1, ..., s+d-1. It does not occupy slot s+d. Two surgeries overlap if
+  they are in the same shift of the same day and they occupy at least one slot
+  in common.
+
+Non-preemption
+  A surgery cannot be interrupted and resumed later. Once it starts it runs for
+  its whole duration in the same room, with the same surgeon and the same
+  anaesthetist.
+
+Specialties
+  Every surgical request belongs to one medical specialty. Operating rooms,
+  surgeons and anaesthetists are qualified for specialties, and this is what
+  determines which of them may be used for a request.
+
+
+3. WHAT AN INSTANCE PROVIDES
+----------------------------
+
+An instance describes the following.
+
+  a. The number of days in the horizon, the number of time slots per shift, and
+     the number of the first slot of a shift.
+
+  b. The surgical requests. For each request: an identifier, a priority level
+     (1, 2 or 3, where 1 is the most urgent), the duration of the surgery in
+     time slots, and its medical specialty.
+
+  c. The opening plan of the operating rooms. For each operating room, the
+     shifts and days in which it is open, and the medical specialty to which it
+     is allocated in each of those shifts. A room that is not listed as open in
+     a shift cannot be used in that shift.
+
+  d. The surgeons. For each surgeon, the medical specialty they are qualified
+     for, and the shifts and days in which they are on duty.
+
+  e. The anaesthetists. For each anaesthetist, the medical specialty they are
+     qualified for, and the shifts and days in which they are on duty.
+
+  f. The daily workload limits. For each surgeon and each day, the maximum total
+     surgery time, in time slots, that the surgeon may accumulate on that day.
+     The same for each anaesthetist and each day. The two sets of limits are
+     independent of one another.
+
+     A daily limit covers both shifts of the day taken together, and it may be
+     smaller than the length of a single shift. A surgeon who is on duty in two
+     shifts of the same day therefore cannot necessarily fill both of them: the
+     daily limit applies regardless of how many shifts the person is on duty
+     for, and is often the binding constraint of the instance.
+
+
+4. WHAT A SOLUTION MUST SPECIFY
+-------------------------------
+
+A solution is a list of scheduled requests. For each scheduled request it
+states: the request identifier, the day, the shift, the starting time slot, the
+operating room, the surgeon and the anaesthetist.
+
+Requests that do not appear in the list are unscheduled. The solution must also
+state explicitly which requests were left unscheduled.
+
+
+5. REQUIREMENTS
+---------------
+
+A solution is valid only if all of the following hold.
+
+R1 - One assignment per request
+  Each request appears at most once in the schedule. A request cannot be
+  performed twice, nor split between two rooms, two surgeons, two anaesthetists
+  or two starting times.
+
+R2 - The room must be open and of the right specialty
+  A request may be assigned to an operating room only if, in that shift of that
+  day, the room is open and is allocated to the medical specialty of the
+  request.
+
+R3 - The surgeon must be qualified and on duty
+  A request may be assigned to a surgeon only if the surgeon is qualified for
+  the medical specialty of the request and is on duty in that shift of that day.
+
+R4 - The anaesthetist must be qualified and on duty
+  A request may be assigned to an anaesthetist only if the anaesthetist is
+  qualified for the medical specialty of the request and is on duty in that
+  shift of that day.
+
+R5 - The surgery must fit within the shift
+  Let L be the number of slots of a shift. A surgery of duration d may start at
+  slot s only if s + d does not exceed L. A surgery may not continue into the
+  following shift or the following day.
+
+  Apply this condition literally. For example, if a shift has 5 slots numbered
+  1 to 5, then a surgery lasting 1 slot may start at slot 1, 2, 3 or 4, but not
+  at slot 5; and a surgery lasting 3 slots may start only at slot 1 or at slot
+  2. The last slot of a shift is therefore never occupied. Do not relax this
+  condition even if it appears to waste the final slot: a schedule that violates
+  it is invalid.
+
+R6 - One surgery at a time in an operating room
+  Two surgeries assigned to the same operating room, in the same shift of the
+  same day, must not overlap.
+
+R7 - One surgery at a time for a surgeon
+  Two surgeries assigned to the same surgeon, in the same shift of the same
+  day, must not overlap.
+
+R8 - One surgery at a time for an anaesthetist
+  Two surgeries assigned to the same anaesthetist, in the same shift of the same
+  day, must not overlap.
+
+R9 - Daily workload limits
+  For each surgeon and each day, the sum of the durations of the surgeries
+  assigned to that surgeon on that day must not exceed the daily limit of that
+  surgeon for that day. The same must hold for each anaesthetist and each day.
+  The sum covers both shifts of the day.
+
+R10 - All urgent requests must be scheduled
+  Every request of priority 1 must be scheduled. A schedule that leaves out even
+  one request of priority 1 is not valid, regardless of anything else.
+
+
+6. HOW SOLUTIONS ARE RANKED
+---------------------------
+
+Among valid solutions, the better one is determined in two steps, in this order.
+
+  Step 1. Count how many requests of priority 2 are left unscheduled. Fewer is
+          better.
+
+  Step 2. Only if two solutions leave the same number of priority-2 requests
+          unscheduled, count how many requests of priority 3 are left
+          unscheduled. Fewer is better.
+
+The first step dominates the second completely. A solution that leaves 3
+priority-2 requests unscheduled and no priority-3 request is worse than a
+solution that leaves 2 priority-2 requests unscheduled and 40 priority-3
+requests unscheduled.
+
+Requests of priority 1 play no part in this ranking, because R10 already
+requires all of them to be scheduled.
+
+Nothing else is measured. In particular, a solution is not preferred because it
+finishes earlier in the day, uses fewer rooms, distributes the work more evenly
+among surgeons or anaesthetists, leaves fewer gaps between surgeries, or groups
+surgeries of the same specialty together. Two solutions that leave unscheduled
+the same number of priority-2 requests and the same number of priority-3
+requests are equally good, however different they look.
+
+
+7. WHAT IS NOT CONSTRAINED
+--------------------------
+
+The following are deliberately not part of the problem. Do not enforce them and
+do not treat them as preferences.
+
+  - Requests have no deadline and no earliest date. A request may be scheduled
+    on any day of the horizon on which the requirements above can be met.
+  - There is no setup, cleaning or changeover time between two surgeries in the
+    same operating room. A surgery may start in the slot immediately after the
+    previous one has ended.
+  - There is no preparation or recovery time around a surgery. A surgery
+    occupies its room, its surgeon and its anaesthetist for exactly its
+    duration, and nothing more.
+  - Surgeons and anaesthetists are interchangeable within their specialty.
+    Nothing requires a particular pairing of surgeon and anaesthetist, and
+    nothing requires two related requests to receive the same staff or the same
+    room.
+  - There is no travel or transfer time between rooms.
+  - Beds, wards and post-operative care are not modelled.
+  - The workload limits are daily. There is no constraint that spans two or more
+    days, such as a minimum rest between consecutive shifts, a bound on
+    consecutive working days, or a weekly maximum.
+  - No room, surgeon or anaesthetist has to be used, and none has to be kept
+    free.
+
+
+8. OUTPUT FORMAT
+----------------
+
+Report the solution as a table with one row per scheduled request and the
+following columns, in this order:
+
+  request, day, shift, starting slot, operating room, surgeon, anaesthetist
+
+Use "morning" or "afternoon" in the shift column. After the table, list the
+identifiers of the unscheduled requests, grouped by priority, and state the two
+ranking figures: the number of unscheduled priority-2 requests and the number of
+unscheduled priority-3 requests.
+
+Do not include any other commentary inside the table.
