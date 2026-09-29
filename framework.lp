@@ -65,7 +65,7 @@ hsf_time_occupation(RegID, D, ts(Start..End,Shift), ResourceType) :- hsf_time_oc
 :- hsf_avail(R,NumTS1,D), #sum{NumTS,RegID,Treat: hsf_assign_resource(RegID,D,R), hsf_assign_day(RegID,D,Treat), hsf_exam_registration(RegID,ExamID), hsf_exam_duration(ExamID,Treat,NumTS)} > NumTS1.
 
 % A resource for a specific exam cannot be used in a day more than a fixed limit.
-:- hsf_limit(ExamID,R,D,Treatment,N), #count{RegID: hsf_assign_resource(RegID,D,R), hsf_exam_registration(RegID, ExamID)} > N.
+:- hsf_limit(ExamID,R,D,N), #count{RegID: hsf_assign_resource(RegID,D,R), hsf_exam_registration(RegID, ExamID)} > N.
 
 % Give preference to registration with higher priority.
 hsf_max_priorities(X) :- #max{P: hsf_registration_priority(_,P)} = X.

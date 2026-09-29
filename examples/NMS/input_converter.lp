@@ -22,7 +22,7 @@ hsf_required_resource(RegID,tomograph,2,4) :- reg(RegID,D,PrID), not required_ch
 hsf_required_resource(RegID,chair,2,3) :- reg(RegID,D,PrID), required_chair(PrID).
 hsf_required_resource(RegID,tomograph,4,4) :- reg(RegID,D,PrID), required_chair(PrID).
 
-hsf_limit(ExamID,(T,tomograph),D,1,N) :- hsf_day(D), tomograph(T,_), limit(ExamID,N).
+hsf_limit(ExamID,(T,tomograph),D,N) :- hsf_day(D), tomograph(T,_), limit(ExamID,N).
 
 #const k = 6.
 hsf_increase_time_window(k).
